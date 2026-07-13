@@ -7,7 +7,6 @@ import {
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const LANG_KEY = 'cheers_lang';
 const INSTAGRAM_URL = 'https://www.instagram.com/cheers_o_bar/';
-const MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=Cheers+O+Bar+Viseu';
 const WAZE_URL = 'https://www.waze.com/live-map/directions/pt/viseu/viseu/cheers-o-bar?to=place.ChIJVXdIo6o3Iw0RmDDaVMSAd5E';
 
 // ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
@@ -19,8 +18,6 @@ const t = {
     close: 'Fechar',
     directions: 'Como chegar',
     noResults: 'Sem resultados para',
-    available_false: 'Esgotado',
-    price: 'Preço',
   },
   en: {
     search: 'Search drinks, food…',
@@ -29,8 +26,6 @@ const t = {
     close: 'Close',
     directions: 'Get directions',
     noResults: 'No results for',
-    available_false: 'Sold Out',
-    price: 'Price',
   },
 };
 
@@ -465,19 +460,16 @@ export default function App() {
     setLang(l => l === 'pt' ? 'en' : 'pt');
   }, []);
 
-  // available items only
   const available = useMemo(() =>
     menuItems.filter(i => i.available !== false),
     []
   );
 
-  // highlighted items
   const highlights = useMemo(() =>
     available.filter(i => i.featured),
     [available]
   );
 
-  // search filter
   const searchLower = search.toLowerCase();
   const filtered = useMemo(() => {
     if (!searchLower) return available;
@@ -488,13 +480,11 @@ export default function App() {
     );
   }, [available, searchLower, lang]);
 
-  // categories that have items
   const activeCategories = useMemo(() => {
     const cats = new Set(available.map(i => i.category));
     return getCategoryOrder().filter(c => cats.has(c));
   }, [available]);
 
-  // items to show
   const displayItems = useMemo(() => {
     if (search) return filtered;
     if (activeCategory === 'highlights') return highlights;
@@ -502,10 +492,8 @@ export default function App() {
     return available.filter(i => i.category === activeCategory);
   }, [search, filtered, activeCategory, highlights, available]);
 
-  // sections to render
   const sections = useMemo(() => {
     if (search) {
-      // group by category when searching
       const groups = new Map<Category, MenuItem[]>();
       for (const item of filtered) {
         if (!groups.has(item.category)) groups.set(item.category, []);
@@ -527,7 +515,6 @@ export default function App() {
 
   return (
     <div style={S.app}>
-      {/* HEADER */}
       <header style={S.header}>
         <div style={S.headerTop}>
           <span style={S.logo}>CHEERS O BAR</span>
@@ -535,8 +522,6 @@ export default function App() {
             {lang === 'pt' ? '🇬🇧 EN' : '🇵🇹 PT'}
           </button>
         </div>
-
-        {/* SEARCH */}
         <div style={S.searchWrap}>
           <span style={S.searchIcon}>🔍</span>
           <input
@@ -546,8 +531,6 @@ export default function App() {
             onChange={e => { setSearch(e.target.value); }}
           />
         </div>
-
-        {/* CATEGORY TABS */}
         {!search && (
           <div style={S.tabs}>
             <button
@@ -575,7 +558,6 @@ export default function App() {
         )}
       </header>
 
-      {/* MAIN */}
       <main style={S.main}>
         {sections.length === 0 || (sections[0]?.items.length === 0) ? (
           <div style={S.noResults}>
@@ -608,7 +590,6 @@ export default function App() {
         )}
       </main>
 
-      {/* FOOTER */}
       <footer style={S.footer}>
         <a
           href={INSTAGRAM_URL}
@@ -630,7 +611,6 @@ export default function App() {
         </a>
       </footer>
 
-      {/* MODAL */}
       {selected && (
         <ItemModal
           item={selected}
